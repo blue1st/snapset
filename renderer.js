@@ -62,6 +62,25 @@ fillColorInput.addEventListener('input', () => {
 
 updateAspectBadge();
 
+// Preset Buttons
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const w = btn.dataset.w;
+    const h = btn.dataset.h;
+    targetWInput.value = w;
+    targetHInput.value = h;
+    
+    if (w === h) {
+      lockAspect.checked = true;
+    } else {
+      lockAspect.checked = false;
+    }
+
+    updateAspectBadge();
+    if (rawImagePath) runPreview();
+  });
+});
+
 // ROI Selection
 document.getElementById('select-mouse-btn').addEventListener('click', async () => {
   showStatus('画面が切り替わります。 Enterで決定、Escでキャンセル。');

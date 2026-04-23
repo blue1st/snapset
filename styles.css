@@ -88,10 +88,45 @@ header p {
   gap: 8px;
 }
 
-.field label {
+.field label, .field-label {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
+}
+
+.presets-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.preset-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #f0f0f5;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.preset-btn:active {
+  transform: translateY(0);
 }
 
 input[type="number"], input[type="text"], select {
