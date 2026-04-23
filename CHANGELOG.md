@@ -1,5 +1,12 @@
 
 
+## [1.1.3](https://github.com/blue1st/snapset/compare/v1.1.2...v1.1.3) (2026-04-23)
+
+
+### Bug Fixes
+
+* disable electron-builder auto-publish and add permissions to build job ([70e972d](https://github.com/blue1st/snapset/commit/70e972d52e27d52736e6034aef7a9e72c3c75b1e))
+
 ## [1.1.2](https://github.com/blue1st/snapset/compare/v1.1.0...v1.1.2) (2026-04-23)
 
 # 1.1.0 (2026-04-23)
