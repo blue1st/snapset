@@ -12,6 +12,8 @@ env:
 jobs:
   build:
     runs-on: macos-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         os: [macos, windows]
@@ -31,7 +33,7 @@ jobs:
       - name: Build binaries (macOS)
         if: matrix.os == 'macos'
         run: |
-          npm run dist -- --mac --arm64
+          npm run dist -- --mac --arm64 -p never
         env:
           CI: true
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,7 +42,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          npm run dist -- --win --x64
+          npm run dist -- --win --x64 -p never
         env:
           CI: true
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
