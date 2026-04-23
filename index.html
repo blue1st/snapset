@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Snapset - Premium Screenshot Tool</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Snapset</h1>
+    </header>
+
+    <!-- STEP 1: サイズ指定 -->
+    <section class="card" id="step-size">
+      <h2><span class="step-num">1</span> サイズとアスペクト比</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label>幅 (Width)</label>
+          <input type="number" id="target-w" value="1920" placeholder="px">
+        </div>
+        <div class="field">
+          <label>高さ (Height)</label>
+          <input type="number" id="target-h" value="1080" placeholder="px">
+        </div>
+        <div class="field" style="justify-content: flex-end;">
+          <label class="checkbox-field">
+            <input type="checkbox" id="lock-aspect"> 縦横比を固定 (1:1等)
+          </label>
+        </div>
+        <div class="field" style="justify-content: flex-end; align-items: flex-start;">
+          <span class="badge" id="aspect-badge">比率: 16:9</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: キャプチャ -->
+    <section class="card" id="step-capture">
+      <h2><span class="step-num">2</span> 撮影領域の選択</h2>
+      <button id="select-mouse-btn" class="warning" style="width: 100%;">
+        📍 マウスで撮影範囲を選択する
+      </button>
+      <div id="selection-info" style="margin-top: 12px; font-size: 13px; color: var(--text-muted); text-align: center;">
+        未選択
+      </div>
+    </section>
+
+    <!-- STEP 3: プレビュー & 調整 (初期は非表示) -->
+    <section class="card" id="preview-section" style="display: none;">
+      <h2><span class="step-num">3</span> プレビューと仕上げ</h2>
+
+      <div class="form-grid" style="margin-bottom: 12px;">
+        <div class="field">
+          <label>枠の太さ</label>
+          <input type="number" id="border-size" value="0" min="0">
+        </div>
+        <div class="field">
+          <label>枠の色</label>
+          <input type="color" id="border-color" value="#000000" style="height: 40px; padding: 2px;">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom: 24px;">
+        <div class="field">
+          <label>加工種別</label>
+          <select id="red-type">
+            <option value="fill">塗りつぶし (範囲を隠す)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="redaction-params"
+        style="margin-bottom: 16px; padding: 12px; background: #f0f0f5; border-radius: 8px; font-size: 13px;">
+        <!-- 塗りつぶし用設定 -->
+        <div id="param-fill" style="display: flex; align-items: center; gap: 12px;">
+          <label style="color:var(--text); font-weight:600;">塗りつぶし色:</label>
+          <input type="color" id="fill-color" value="#000000"
+            style="width: 60px; height: 30px; padding: 2px; border: none; background: none;">
+        </div>
+      </div>
+
+      <div id="preview-container" class="preview-container">
+        <img id="preview-img" alt="" draggable="false">
+        <div id="redaction-overlay"
+          style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></div>
+        <div id="draw-guide"
+          style="position: absolute; border: 2px solid var(--primary); background: rgba(0, 122, 255, 0.1); display: none; pointer-events: none; z-index: 10;">
+        </div>
+      </div>
+
+      <div id="preview-status" style="margin-top: 12px; font-size: 12px; color: var(--text-muted);"></div>
+
+      <div class="redaction-list" id="redaction-list">
+        <!-- リストアイテムがここに追加される -->
+      </div>
+    </section>
+
+    <!-- STEP 4: 保存 -->
+    <section class="card" id="export-section" style="display: none; text-align: center;">
+      <div style="display: flex; gap: 16px; justify-content: center;">
+        <button id="save-file-btn" class="primary" style="padding-left: 40px; padding-right: 40px;">
+          💾 画像を保存する
+        </button>
+      </div>
+    </section>
+
+    <div id="status" class="status-bar"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+
+</html>

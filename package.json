@@ -1,0 +1,21 @@
+{
+  "name": "snapset",
+  "version": "1.0.0",
+  "description": "A tool to take screenshots with predefined presets, including borders, redactions (mosaic/blackout), and resizing.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^41.2.0"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "fs-extra": "^11.2.0",
+    "screenshot-desktop": "^5.0.0",
+    "sharp": "^0.33.3"
+  }
+}

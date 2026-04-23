@@ -1,0 +1,219 @@
+:root {
+  --primary: #007aff;
+  --primary-hover: #0063cc;
+  --bg: #f5f7f9;
+  --card-bg: #ffffff;
+  --text: #1d1d1f;
+  --text-muted: #86868b;
+  --border: #d2d2d7;
+  --success: #34c759;
+  --danger: #ff3b30;
+  --warning: #ff9500;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding: 40px 20px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+header p {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-num {
+  background: var(--primary);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+input[type="number"], input[type="text"], select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+}
+
+.checkbox-field input {
+  width: 18px;
+  height: 18px;
+}
+
+button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button.primary { background: var(--primary); color: white; }
+button.primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+button.warning { background: var(--warning); color: white; }
+button.success { background: var(--success); color: white; }
+button.danger { background: var(--danger); color: white; }
+button.secondary { background: var(--border); color: var(--text); }
+
+button:active { transform: translateY(0); opacity: 0.8; }
+
+.status-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 30px;
+  background: rgba(29, 29, 31, 0.9);
+  color: white;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.preview-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eee;
+  border: 1px solid var(--border);
+  line-height: 0;
+  cursor: crosshair;
+  user-select: none;
+}
+
+#preview-img {
+  max-width: 100%;
+  display: block;
+}
+
+.redaction-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.redaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #f9f9fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.redaction-item .type {
+  font-weight: 700;
+  color: var(--primary);
+  margin-right: 8px;
+}
+
+.badge {
+  background: #e1e4e8;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card { animation: fadeIn 0.4s ease-out forwards; }

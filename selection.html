@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Region</title>
+  <style>
+    * { margin: 0; padding: 0; }
+    body { overflow: hidden; background: transparent; }
+    #screenshot { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+    #frame {
+      position: fixed; border: 2px solid #00ff00; cursor: move;
+      /* 透過は透過ウィンドウと干渉するので黒で代用 */
+      background: rgba(0,0,0,0.0);
+    }
+    .corner { position: absolute; width: 12px; height: 12px; border: 2px solid #00ff00; }
+    .corner-tl { top: -7px; left: -7px; border-right: none; border-bottom: none; }
+    .corner-tr { top: -7px; right: -7px; border-left: none; border-bottom: none; }
+    .corner-bl { bottom: -7px; left: -7px; border-right: none; border-top: none; }
+    .corner-br { bottom: -7px; right: -7px; border-left: none; border-top: none; }
+    #size-label {
+      position: fixed; background: rgba(0,0,0,0.8); color: #00ff00;
+      padding: 6px 12px; font-family: monospace; font-size: 16px; font-weight: bold;
+      pointer-events: none; white-space: nowrap; z-index: 5;
+    }
+    #guide {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px;
+      border-radius: 8px; font-family: sans-serif; font-size: 14px;
+      pointer-events: none; z-index: 10; white-space: nowrap;
+    }
+    #guide span { color: #ffd700; font-weight: bold; }
+    #status {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.8); color: #fff; padding: 10px 20px;
+      border-radius: 8px; font-family: sans-serif; font-size: 14px;
+      pointer-events: none; z-index: 10;
+    }
+    #aspect-info {
+      position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,100,255,0.6); color: #fff; padding: 6px 16px;
+      border-radius: 8px; font-family: sans-serif; font-size: 13px;
+      pointer-events: none; z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <img id="screenshot" alt="">
+  <div id="frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+  </div>
+  <div id="size-label"></div>
+  <div id="aspect-info"></div>
+  <div id="status">画像読込中...</div>
+  <div id="guide">ドラッグ:移動 | <span>ホイール</span>:サイズ | <span>Enter</span>:決定 | Esc:キャンセル</div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const aspect = parseFloat(urlParams.get('aspect')) || (16/9);
+    const initW = parseInt(urlParams.get('initW')) || 1920;
+    const initH = parseInt(urlParams.get('initH')) || 1080;
+
+    const screenshotImg = document.getElementById('screenshot');
+    const frame = document.getElementById('frame');
+    const sizeLabel = document.getElementById('size-label');
+    const aspectInfo = document.getElementById('aspect-info');
+    const statusEl = document.getElementById('status');
+
+    let imgW = 0, imgH = 0;
+    let imgLoaded = false;
+    const MIN_SIZE = 50;
+    let frameX, frameY, frameW, frameH;
+
+    function initFrame() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let fw = initW, fh = initH;
+      if (fw > vw * 0.8) { fw = vw * 0.8; fh = fw / aspect; }
+      if (fh > vh * 0.8) { fh = vh * 0.8; fw = fh * aspect; }
+      frameW = fw; frameH = fh;
+      frameX = (vw - fw) / 2; frameY = (vh - fh) / 2;
+      updateFrame();
+    }
+
+    function updateFrame() {
+      frame.style.left = frameX + 'px';
+      frame.style.top = frameY + 'px';
+      frame.style.width = frameW + 'px';
+      frame.style.height = frameH + 'px';
+      sizeLabel.textContent = `${Math.round(frameW)} × ${Math.round(frameH)}`;
+      sizeLabel.style.left = frameX + 'px';
+      sizeLabel.style.top = (frameY - 35) + 'px';
+    }
+
+    // IPC経由で画像データを受信
+    if (window.electronAPI) {
+      window.electronAPI.onBgImage((dataUri) => {
+        screenshotImg.src = dataUri;
+        screenshotImg.onload = () => {
+          imgW = screenshotImg.naturalWidth;
+          imgH = screenshotImg.naturalHeight;
+          imgLoaded = true;
+          statusEl.textContent = '画像読込完了。枠を調整してEnterで決定。';
+        };
+        screenshotImg.onerror = () => { statusEl.textContent = '画像読込エラー'; };
+      });
+    }
+
+    if (aspect === 1) {
+      aspectInfo.textContent = '固定アスペクト比: 1:1 (正方形)';
+    } else {
+      const g = gcd(Math.round(aspect * 100), 100);
+      aspectInfo.textContent = `固定アスペクト比: ${Math.round(aspect * 100 / g)}:${100 / g}`;
+    }
+
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+    let isDragging = false;
+    let dragOffsetX, dragOffsetY;
+
+    frame.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragOffsetX = e.clientX - frameX;
+      dragOffsetY = e.clientY - frameY;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        frameX = e.clientX - dragOffsetX;
+        frameY = e.clientY - dragOffsetY;
+        updateFrame();
+      }
+    });
+
+    document.addEventListener('mouseup', () => { isDragging = false; });
+
+    document.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const cx = frameX + frameW / 2, cy = frameY + frameH / 2;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      frameW = Math.max(MIN_SIZE, Math.round(frameW * delta));
+      frameH = Math.round(frameW / aspect);
+      frameX = cx - frameW / 2; frameY = cy - frameH / 2;
+      updateFrame();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') confirmSelection();
+      else if (e.key === 'Escape') cancelSelection();
+    });
+
+    function confirmSelection() {
+      let absX, absY, absW, absH;
+      if (imgLoaded) {
+        const scaleX = imgW / window.innerWidth;
+        const scaleY = imgH / window.innerHeight;
+        absX = Math.round(frameX * scaleX);
+        absY = Math.round(frameY * scaleY);
+        absW = Math.round(frameW * scaleX);
+        absH = Math.round(frameH * scaleY);
+      } else {
+        absX = Math.round(frameX); absY = Math.round(frameY);
+        absW = Math.round(frameW); absH = Math.round(frameH);
+      }
+      if (absW > MIN_SIZE && absH > MIN_SIZE) {
+        window.electronAPI.confirmSelection({ x: absX, y: absY, width: absW, height: absH });
+      } else { cancelSelection(); }
+    }
+
+    function cancelSelection() { window.electronAPI.cancelSelection(); }
+
+    window.addEventListener('resize', () => {
+      if (frameX === undefined) initFrame();
+      updateFrame();
+    });
+
+    initFrame();
+  </script>
+</body>
+</html>
