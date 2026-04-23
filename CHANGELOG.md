@@ -1,5 +1,12 @@
 
 
+# [1.2.0](https://github.com/blue1st/snapset/compare/v1.1.3...v1.2.0) (2026-04-23)
+
+
+### Features
+
+* add quick-select resolution preset buttons to UI ([c4021da](https://github.com/blue1st/snapset/commit/c4021dabaa2df7775acde759ad4db104c5ef7da9))
+
 ## [1.1.3](https://github.com/blue1st/snapset/compare/v1.1.2...v1.1.3) (2026-04-23)
 
 
