@@ -6,6 +6,7 @@ const sharp = require('sharp');
 
 let mainWindow;
 let selectionWindow;
+let lastFullScreenshotBuffer = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -26,14 +27,20 @@ async function createSelectionWindow(aspect, initW, initH) {
   try {
     console.log('Capturing full screenshot with screenshot-desktop...');
     // 自身のウィンドウを隠して全画面キャプチャに含めない
-    if (mainWindow) { mainWindow.hide(); }
+    if (mainWindow) {
+      mainWindow.hide();
+      // macOSのウィンドウ非表示アニメーションと影が消えるのを待つ
+      await new Promise(r => setTimeout(r, 500));
+    }
     const imgBuffer = await screenshotDesktop();
+    lastFullScreenshotBuffer = imgBuffer;
     console.log('Full screenshot captured, buffer size:', imgBuffer.length);
 
     if (imgBuffer.length === 0) {
       console.log('screenshot-desktop returned empty buffer, trying with timeout...');
       await new Promise(r => setTimeout(r, 500));
       const imgBuffer2 = await screenshotDesktop();
+      lastFullScreenshotBuffer = imgBuffer2;
       console.log('Second attempt buffer size:', imgBuffer2.length);
       if (imgBuffer2.length > 0) {
         const selectionScreenshotPath = path.join(app.getPath('temp'), `selection_bg_${Date.now()}.png`);
@@ -172,17 +179,21 @@ app.whenReady().then(() => {
     try {
       const { x, y, width, height } = region;
       
-      // キャプチャ時に自身のウィンドウが映り込まないように隠す
-      // すでに隠れている場合（選択直後）も、OSのウィンドウ遷移待ちとして少し待機する
-      if (mainWindow && mainWindow.isVisible()) {
-        mainWindow.hide();
-        await new Promise(r => setTimeout(r, 200));
+      let imgBuffer;
+      if (lastFullScreenshotBuffer) {
+        console.log('Using cached full screenshot buffer');
+        imgBuffer = lastFullScreenshotBuffer;
       } else {
-        await new Promise(r => setTimeout(r, 200));
+        // キャプチャ時に自身のウィンドウが映り込まないように隠す
+        if (mainWindow && mainWindow.isVisible()) {
+          mainWindow.hide();
+          await new Promise(r => setTimeout(r, 500));
+        } else {
+          await new Promise(r => setTimeout(r, 500));
+        }
+        console.log('Capturing fresh full screen for manual crop:', x, y, width, height);
+        imgBuffer = await screenshotDesktop();
       }
-
-      console.log('Capturing full screen for manual crop:', x, y, width, height);
-      let imgBuffer = await screenshotDesktop();
       
       const metadata = await sharp(imgBuffer).metadata();
       console.log('Original screen size:', metadata.width, metadata.height);
