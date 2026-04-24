@@ -1,5 +1,12 @@
 
 
+## [1.2.1](https://github.com/blue1st/snapset/compare/v1.2.0...v1.2.1) (2026-04-24)
+
+
+### Performance Improvements
+
+* cache full-screen capture buffer to optimize selection process and remove unused UI element ([66505e0](https://github.com/blue1st/snapset/commit/66505e043cf1be52e3927555455454db5f9e0a5f))
+
 # [1.2.0](https://github.com/blue1st/snapset/compare/v1.1.3...v1.2.0) (2026-04-23)
 
 
