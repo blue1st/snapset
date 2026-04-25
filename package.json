@@ -1,6 +1,6 @@
 {
   "name": "snapset",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "build": {
     "appId": "com.blue1st.snapset",
     "mac": {
