@@ -82,7 +82,15 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 });
 
 // ROI Selection
+let isProcessingSelection = false;
 document.getElementById('select-mouse-btn').addEventListener('click', async () => {
+  if (isProcessingSelection) return;
+  isProcessingSelection = true;
+  const btn = document.getElementById('select-mouse-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '準備中...';
+  btn.disabled = true;
+
   showStatus('画面が切り替わります。 Enterで決定、Escでキャンセル。');
   try {
     await window.electronAPI.openSelection(
@@ -92,6 +100,10 @@ document.getElementById('select-mouse-btn').addEventListener('click', async () =
     );
   } catch (err) {
     showStatus('エラー: ' + err.message, 'error');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    isProcessingSelection = false;
   }
 });
 

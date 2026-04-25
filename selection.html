@@ -94,18 +94,19 @@
       sizeLabel.style.top = (frameY - 35) + 'px';
     }
 
-    // IPC経由で画像データを受信
-    if (window.electronAPI) {
-      window.electronAPI.onBgImage((dataUri) => {
-        screenshotImg.src = dataUri;
-        screenshotImg.onload = () => {
-          imgW = screenshotImg.naturalWidth;
-          imgH = screenshotImg.naturalHeight;
-          imgLoaded = true;
-          statusEl.textContent = '画像読込完了。枠を調整してEnterで決定。';
-        };
-        screenshotImg.onerror = () => { statusEl.textContent = '画像読込エラー'; };
-      });
+    // URLパラメータから背景画像を読み込む
+    const bgPath = urlParams.get('bgPath');
+    if (bgPath) {
+      // Windowsのパス形式をfile://形式に正規化
+      const normalizedBgPath = bgPath.startsWith('/') ? `file://${bgPath}` : `file:///${bgPath.replace(/\\/g, '/')}`;
+      screenshotImg.src = normalizedBgPath;
+      screenshotImg.onload = () => {
+        imgW = screenshotImg.naturalWidth;
+        imgH = screenshotImg.naturalHeight;
+        imgLoaded = true;
+        statusEl.textContent = '画像読込完了。枠を調整してEnterで決定。';
+      };
+      screenshotImg.onerror = () => { statusEl.textContent = '画像読込エラー'; };
     }
 
     if (aspect === 1) {

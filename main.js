@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const screenshotDesktop = require('screenshot-desktop');
 const sharp = require('sharp');
+const { pathToFileURL } = require('url');
 
 let mainWindow;
 let selectionWindow;
@@ -26,91 +27,58 @@ function createWindow() {
 async function createSelectionWindow(aspect, initW, initH) {
   try {
     console.log('Capturing full screenshot with screenshot-desktop...');
-    // 自身のウィンドウを隠して全画面キャプチャに含めない
     if (mainWindow) {
       mainWindow.hide();
-      // macOSのウィンドウ非表示アニメーションと影が消えるのを待つ
       await new Promise(r => setTimeout(r, 500));
     }
-    const imgBuffer = await screenshotDesktop();
-    lastFullScreenshotBuffer = imgBuffer;
-    console.log('Full screenshot captured, buffer size:', imgBuffer.length);
 
-    if (imgBuffer.length === 0) {
-      console.log('screenshot-desktop returned empty buffer, trying with timeout...');
+    let imgBuffer;
+    try {
+      imgBuffer = await screenshotDesktop();
+    } catch (e) {
+      console.error('Initial capture failed:', e);
       await new Promise(r => setTimeout(r, 500));
-      const imgBuffer2 = await screenshotDesktop();
-      lastFullScreenshotBuffer = imgBuffer2;
-      console.log('Second attempt buffer size:', imgBuffer2.length);
-      if (imgBuffer2.length > 0) {
-        const selectionScreenshotPath = path.join(app.getPath('temp'), `selection_bg_${Date.now()}.png`);
-        await fs.writeFile(selectionScreenshotPath, imgBuffer2);
-        console.log('BG saved, exists:', await fs.pathExists(selectionScreenshotPath));
-        selectionWindow = new BrowserWindow({
-          fullscreen: true,
-          frame: false,
-          backgroundColor: '#000',
-          alwaysOnTop: true,
-          webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: false,
-            contextIsolation: true,
-          },
-          icon: path.join(__dirname, 'icon.png')
-        });
-        const selectionHtmlPath = path.join(__dirname, 'selection.html');
-        const url = `file://${selectionHtmlPath}?bgPath=${encodeURIComponent(selectionScreenshotPath)}&aspect=${aspect}&initW=${initW}&initH=${initH}`;
-        console.log('Loading selection with bgPath');
-        selectionWindow.loadURL(url);
-        await new Promise((resolve, reject) => {
-          const handler = () => {
-            selectionWindow.webContents.removeListener('dom-ready', handler);
-            const imgBuf = imgBuffer2 || imgBuffer;
-            const dataUri = 'data:image/png;base64,' + imgBuf.toString('base64');
-            selectionWindow.webContents.send('selection:bg-image', dataUri);
-            console.log('Sent bg-image to selection window');
-            resolve();
-          };
-          selectionWindow.webContents.on('dom-ready', handler);
-        });
-        return;
-      }
-      throw new Error('Failed to capture full screenshot');
+      imgBuffer = await screenshotDesktop();
+    }
+
+    console.log('Full screenshot captured, buffer size:', imgBuffer.length);
+    if (!imgBuffer || imgBuffer.length === 0) {
+      throw new Error('Failed to capture screen (empty buffer)');
     }
 
     const selectionScreenshotPath = path.join(app.getPath('temp'), `selection_bg_${Date.now()}.png`);
     await fs.writeFile(selectionScreenshotPath, imgBuffer);
-    console.log('BG saved, exists:', await fs.pathExists(selectionScreenshotPath));
-
+    
     selectionWindow = new BrowserWindow({
       fullscreen: true,
       frame: false,
       backgroundColor: '#000',
       alwaysOnTop: true,
+      skipTaskbar: true,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: false,
         contextIsolation: true,
+        webSecurity: false // ローカルファイルの読み込みを許可
       },
       icon: path.join(__dirname, 'icon.png')
     });
 
     const selectionHtmlPath = path.join(__dirname, 'selection.html');
-    const url = `file://${selectionHtmlPath}?bgPath=${encodeURIComponent(selectionScreenshotPath)}&aspect=${aspect}&initW=${initW}&initH=${initH}`;
-    console.log('Loading selection window');
-    selectionWindow.loadURL(url);
-    await new Promise((resolve, reject) => {
-      const handler = () => {
-        selectionWindow.webContents.removeListener('dom-ready', handler);
-        const dataUri = 'data:image/png;base64,' + imgBuffer.toString('base64');
-        selectionWindow.webContents.send('selection:bg-image', dataUri);
-        console.log('Sent bg-image to selection window');
-        resolve();
-      };
-      selectionWindow.webContents.on('dom-ready', handler);
-    });
+    const selectionUrl = pathToFileURL(selectionHtmlPath);
+    selectionUrl.searchParams.set('bgPath', selectionScreenshotPath);
+    selectionUrl.searchParams.set('aspect', aspect);
+    selectionUrl.searchParams.set('initW', initW);
+    selectionUrl.searchParams.set('initH', initH);
+
+    console.log('Loading selection window:', selectionUrl.toString());
+    await selectionWindow.loadURL(selectionUrl.toString());
+
   } catch (error) {
     console.error('Failed to create selection window:', error);
+    if (mainWindow) {
+      mainWindow.show();
+    }
     throw error;
   }
 }
