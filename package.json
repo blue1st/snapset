@@ -19,6 +19,9 @@
         }
       ]
     },
+    "asarUnpack": [
+      "node_modules/screenshot-desktop/lib/win32/*"
+    ],
     "directories": {
       "output": "dist"
     }
