@@ -1,5 +1,12 @@
 
 
+## [1.2.5](https://github.com/blue1st/snapset/compare/v1.2.4...v1.2.5) (2026-09-22)
+
+
+### Bug Fixes
+
+* **homebrew:** use postflight_steps instead of deprecated postflight ([1634fb8](https://github.com/blue1st/snapset/commit/1634fb869458eca7c0ff71f09773c3c4a0d018f6))
+
 ## [1.2.4](https://github.com/blue1st/snapset/compare/v1.2.3...v1.2.4) (2026-04-25)
 
 ## [1.2.3](https://github.com/blue1st/snapset/compare/v1.2.2...v1.2.3) (2026-04-25)
