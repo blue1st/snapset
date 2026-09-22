@@ -43,13 +43,9 @@ cask "snapset" do
   # Only support Apple Silicon (based on release assets)
   depends_on arch: :arm64
 
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/snapset.app"],
-                   sudo: false
-    system_command "/usr/bin/codesign",
-                   args: ["--force", "--deep", "--sign", "-", "#{appdir}/snapset.app"],
-                   sudo: false
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{appdir}/snapset.app"]
+    run "/usr/bin/codesign", args: ["--force", "--deep", "--sign", "-", "#{appdir}/snapset.app"]
   end
 
   zap trash: [
