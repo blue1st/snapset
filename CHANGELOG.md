@@ -1,5 +1,12 @@
 
 
+## [1.2.7](https://github.com/blue1st/snapset/compare/v1.2.6...v1.2.7) (2026-10-08)
+
+
+### Bug Fixes
+
+* **homebrew:** authenticate git push with x-access-token for homebrew tap update ([bdd8d91](https://github.com/blue1st/snapset/commit/bdd8d911bf6331831d4959ab1c42c31b747aa074))
+
 ## [1.2.6](https://github.com/blue1st/snapset/compare/v1.2.5...v1.2.6) (2026-10-08)
 
 
