@@ -1,5 +1,12 @@
 
 
+## [1.2.6](https://github.com/blue1st/snapset/compare/v1.2.5...v1.2.6) (2026-10-08)
+
+
+### Bug Fixes
+
+* **homebrew:** replace postflight_steps with caveats ([a4f2672](https://github.com/blue1st/snapset/commit/a4f2672e9ae6e5fee442c5b1004f086947c53c30))
+
 ## [1.2.5](https://github.com/blue1st/snapset/compare/v1.2.4...v1.2.5) (2026-09-22)
 
 
