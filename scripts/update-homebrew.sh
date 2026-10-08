@@ -43,10 +43,10 @@ cask "snapset" do
   # Only support Apple Silicon (based on release assets)
   depends_on arch: :arm64
 
-  postflight_steps do
-    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{appdir}/snapset.app"]
-    run "/usr/bin/codesign", args: ["--force", "--deep", "--sign", "-", "#{appdir}/snapset.app"]
-  end
+  caveats <<~EOS
+    SnapSet is not notarized. If macOS blocks it from running, execute:
+      xattr -cr "/Applications/snapset.app"
+  EOS
 
   zap trash: [
     "~/Library/Application Support/snapset",
